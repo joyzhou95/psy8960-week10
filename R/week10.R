@@ -32,7 +32,7 @@ test <- shuffled_gss[(split + 1):nrow(shuffled_gss),]
 folds <- createFolds(train$workhours, k = 10)
 
 
-train_gss <- sapply(train_gss, as.numeric)
+train <- sapply(train, as.numeric)
 
 
 ols_model <- train(
@@ -51,5 +51,34 @@ ols_model <- train(
 )
 
 ols_test <- predict(ols_model, test, na.action = na.pass)
-cor(ols_test, test$workhours)^2
+ols_test_r2 <- cor(ols_test, test$workhours)^2
+
+# Elastic net model 
+
+glmnet_model <- train(
+  workhours ~.,
+  data = train,
+  method = "glmnet",
+  na.action = na.pass,
+  preProcess =  "medianImpute",
+  trControl = trainControl(
+    method = "cv",
+    number = 10,
+    verboseIter = TRUE,
+    search = "grid",
+    indexOut = folds
+  )
+)
+
+glmnet_test <- predict(glmnet_model, test, na.action = na.pass)
+glmnet_test_r2 <-cor(glmnet_test, test$workhours)^2
+
+ 
+
+
+
+
+
+
+
 
