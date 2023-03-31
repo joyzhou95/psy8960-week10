@@ -73,9 +73,25 @@ glmnet_model <- train(
 glmnet_test <- predict(glmnet_model, test, na.action = na.pass)
 glmnet_test_r2 <-cor(glmnet_test, test$workhours)^2
 
- 
+# Random forest model
+rf_model <- train(
+  workhours ~.,
+  data = train,
+  method = "ranger",
+  na.action = na.pass,
+  preProcess =  "medianImpute",
+  trControl = trainControl(
+    method = "cv",
+    number = 10,
+    verboseIter = TRUE,
+    search = "grid",
+    indexOut = folds,
+   
+  )
+)
 
-
+rf_test <- predict(rf_model, test, na.action = na.pass)
+rf_test_r2 <-cor(rf_test, test$workhours)^2
 
 
 
