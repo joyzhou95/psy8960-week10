@@ -4,6 +4,7 @@ library(tidyverse)
 library(haven)
 library(caret)
 set.seed(67)
+
 # Data Import and Cleaning
 gss_tbl_original <- read_sav("../data/GSS2016.sav") %>%
   mutate_all(~na_if(., 0),
@@ -11,7 +12,7 @@ gss_tbl_original <- read_sav("../data/GSS2016.sav") %>%
              ~na_if(., 99)) %>%
   filter(!is.na(HRS1))
 
-gss_tbl <- select(gss_tbl_original,
+gss_tbl1 <- select(gss_tbl_original,
                   which(colSums(is.na(gss_tbl_original))/nrow(gss_tbl_original) < 0.75)) %>%
   rename(workhours = HRS1)
 
@@ -29,3 +30,26 @@ split <- round(nrow(shuffled_gss)*0.75)
 train <- shuffled_gss[1:split,]
 test <- shuffled_gss[(split + 1):nrow(shuffled_gss),]
 folds <- createFolds(train$workhours, k = 10)
+
+
+train_gss <- sapply(train_gss, as.numeric)
+
+
+ols_model <- train(
+  workhours ~.,
+  data = train,
+  method = "lm",
+  na.action = na.pass,
+  preProcess =  "medianImpute",
+  trControl = trainControl(
+    method = "cv",
+    number = 10,
+    verboseIter = TRUE,
+    search = "grid",
+    indexOut = folds
+  )
+)
+
+ols_test <- predict(ols_model, test, na.action = na.pass)
+cor(ols_test, test$workhours)^2
+
