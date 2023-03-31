@@ -28,4 +28,4 @@ shuffled_gss <- gss_tbl[shuffle_row,]
 split <- round(nrow(shuffled_gss)*0.75)
 train <- shuffled_gss[1:split,]
 test <- shuffled_gss[(split + 1):nrow(shuffled_gss),]
-
+folds <- createFolds(train$workhours, k = 10)
