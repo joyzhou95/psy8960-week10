@@ -80,21 +80,41 @@ rf_model <- train(
   method = "ranger",
   na.action = na.pass,
   preProcess =  "medianImpute",
+  tuneGrid = expand.grid(
+    mtry = c(100, 200, 400, 600),
+    splitrule = c("variance", "extratrees"),
+    min.node.size = 5
+  ),
   trControl = trainControl(
     method = "cv",
     number = 10,
     verboseIter = TRUE,
     search = "grid",
     indexOut = folds,
-   
   )
 )
 
 rf_test <- predict(rf_model, test, na.action = na.pass)
 rf_test_r2 <-cor(rf_test, test$workhours)^2
 
+# eXtreme Gradient Boosting
 
+gbm_model <- train(
+  workhours ~.,
+  data = train,
+  method = "xgbLinear",
+  na.action = na.pass,
+  preProcess =  "medianImpute",
+  trControl = trainControl(
+    method = "cv",
+    number = 10,
+    verboseIter = TRUE,
+    search = "grid",
+    indexOut = folds,
+  )
+)
 
+gbm_test <- predict(gbm_model, test, na.action = na.pass)
+gbm_test_r2 <-cor(gbm_test , test$workhours)^2
 
-
-
+summary(resamples(list("lm"=ols_model, "glmnet"=glmnet_model, "ranger"=rf_model)))
