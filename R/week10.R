@@ -12,7 +12,7 @@ gss_tbl_original <- read_sav("../data/GSS2016.sav") %>%
              ~na_if(., 99)) %>%
   filter(!is.na(HRS1))
 
-gss_tbl1 <- select(gss_tbl_original,
+gss_tbl <- select(gss_tbl_original,
                   which(colSums(is.na(gss_tbl_original))/nrow(gss_tbl_original) < 0.75)) %>%
   rename(workhours = HRS1)
 
@@ -40,7 +40,7 @@ ols_model <- train(
   data = train,
   method = "lm",
   na.action = na.pass,
-  preProcess =  "medianImpute",
+  preProcess = "medianImpute",
   trControl = trainControl(
     method = "cv",
     number = 10,
@@ -81,9 +81,9 @@ rf_model <- train(
   na.action = na.pass,
   preProcess =  "medianImpute",
   tuneGrid = expand.grid(
-    mtry = c(100, 200, 400, 600),
-    splitrule = c("variance", "extratrees"),
-    min.node.size = 5
+    min.node.size = 5,
+    splitrule = "variance",
+    mtry = c(10, 50, 200)
   ),
   trControl = trainControl(
     method = "cv",
@@ -105,6 +105,12 @@ gbm_model <- train(
   method = "xgbLinear",
   na.action = na.pass,
   preProcess =  "medianImpute",
+  tuneGrid = expand.grid(
+    lambda = c(0, 0.01),
+    alpha = c(0.1, 0.00001),
+    nrounds = c(50, 150),
+    eta = 0.3
+  ),
   trControl = trainControl(
     method = "cv",
     number = 10,
@@ -117,4 +123,25 @@ gbm_model <- train(
 gbm_test <- predict(gbm_model, test, na.action = na.pass)
 gbm_test_r2 <-cor(gbm_test , test$workhours)^2
 
-summary(resamples(list("lm"=ols_model, "glmnet"=glmnet_model, "ranger"=rf_model)))
+
+# Publication 
+
+algo <- c("OLS Regression Model", "Elastic Net Model",
+          "Random Forest Model", "eXtreme Gradient Boosting Model")
+
+cv_rsq <- c(ols_model$results$Rsquared, glmnet_model$results$Rsquared[2], 
+            rf_model$results$Rsquared[3], gbm_model$results$Rsquared[7])
+
+ho_rsq <- c(ols_test_r2, glmnet_test_r2, rf_test_r2, gbm_test_r2)
+
+table1_tbl <- tibble(algo, cv_rsq, ho_rsq) 
+
+?tibble
+# Qualitative Questions:
+# 1. How did your results change between models? Why do you think this happened, specifically?
+
+# 2. How did you results change between k-fold CV and holdout CV? Why do you think this happened, specifically?
+
+# 3. Among the four models, which would you choose for a real-life prediction problem, and why? Are there tradeoffs? Write up to a paragraph.
+
+
