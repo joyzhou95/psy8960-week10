@@ -129,14 +129,19 @@ gbm_test_r2 <-cor(gbm_test , test$workhours)^2
 algo <- c("OLS Regression Model", "Elastic Net Model",
           "Random Forest Model", "eXtreme Gradient Boosting Model")
 
-cv_rsq <- c(ols_model$results$Rsquared, glmnet_model$results$Rsquared[2], 
+cv_rsq1 <- c(ols_model$results$Rsquared, glmnet_model$results$Rsquared[2], 
             rf_model$results$Rsquared[3], gbm_model$results$Rsquared[7])
 
-ho_rsq <- c(ols_test_r2, glmnet_test_r2, rf_test_r2, gbm_test_r2)
+ho_rsq1 <- c(ols_test_r2, glmnet_test_r2, rf_test_r2, gbm_test_r2)
+
+cv_rsq2 <- sapply(cv_rsq1, formatC, format = "f", digits = 2)
+cv_rsq <- str_remove(cv_rsq2, pattern = "^0")
+
+ho_rsq2 <- sapply(ho_rsq1, formatC, format = "f", digits = 2)
+ho_rsq <- str_remove(ho_rsq2, pattern = "^0")
 
 table1_tbl <- tibble(algo, cv_rsq, ho_rsq) 
 
-?tibble
 # Qualitative Questions:
 # 1. How did your results change between models? Why do you think this happened, specifically?
 
