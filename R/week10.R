@@ -129,12 +129,12 @@ gbm_test_r2 <-cor(gbm_test , test$workhours)^2
 algo <- c("OLS Regression Model", "Elastic Net Model",
           "Random Forest Model", "eXtreme Gradient Boosting Model")
 
-cv_rsq1 <- c(ols_model$results$Rsquared, glmnet_model$results$Rsquared[2], 
-            rf_model$results$Rsquared[3], gbm_model$results$Rsquared[7])
+cv_rsq1 <- c(round(ols_model$results$Rsquared,2), round(glmnet_model$results$Rsquared[2],2), 
+            round(rf_model$results$Rsquared[3],2), round(gbm_model$results$Rsquared[7],2))
 
 ho_rsq1 <- c(ols_test_r2, glmnet_test_r2, rf_test_r2, gbm_test_r2)
 
-cv_rsq2 <- sapply(cv_rsq1, formatC, format = "f", digits = 2)
+cv_rsq2 <- sapply(cv_rsq1, format, nsmall = 2)
 cv_rsq <- str_remove(cv_rsq2, pattern = "^0")
 
 ho_rsq2 <- sapply(ho_rsq1, formatC, format = "f", digits = 2)
@@ -144,8 +144,13 @@ table1_tbl <- tibble(algo, cv_rsq, ho_rsq)
 
 # Qualitative Questions:
 # 1. How did your results change between models? Why do you think this happened, specifically?
+# Based on r-square values, the random forest and the eXtreme Gradient Boosting models performed better than OLS and elastic net models 
+# because the former two models combine predictors or results from many models to decrease variance and bias without sacrificing the other,
+# thus help alleviate the issue of overfitting. 
 
 # 2. How did you results change between k-fold CV and holdout CV? Why do you think this happened, specifically?
+# The r-square values were much larger in the training model than in the prediction mode, which is due to the issue of overfitting: 
+# models try to maximize predictive accuracy in the given sample yet the accuracy does not hold up in a different sample. 
 
 # 3. Among the four models, which would you choose for a real-life prediction problem, and why? Are there tradeoffs? Write up to a paragraph.
 
