@@ -153,5 +153,17 @@ table1_tbl <- tibble(algo, cv_rsq, ho_rsq)
 # models try to maximize predictive accuracy in the given sample yet the accuracy does not hold up in a different sample. 
 
 # 3. Among the four models, which would you choose for a real-life prediction problem, and why? Are there tradeoffs? Write up to a paragraph.
+# I would pick the random forest model because of its high r-square value in the training set than the OLS and elastic net models.
+# More importantly, it also the highest r-square value in the test sample among the four models. 
+# Although the random forest model has a lower r-square value in the training set than the gradient boosting model, it does perform better than the latter in terms of generalizability
+# And this touches on the bias-variance trade-off in model building: While the gradient boosting model has less bias in predicting the training set due to its high complexity,
+# the variance of the gradient boosting model is higher than the random forest model as a result of the model complexity. 
+# And despite the lower complexity and r-square value (in the training set) of the random forest model, it has the benefit of low variance, and thus higher generalizability.
+# As our goal is to train models that can make accurate predictions in different datasets, the random forest model is more favorable.
+# Another practical trade-off when comparing the random forest and gradient boosting models to the OLS and elastic net models is between prediction quality and computation time:
+# While the former two models had larger r-square values in both training and testing sets, they do take substantially more time to run given their larger number of parameters. 
+
+
+
 
 
